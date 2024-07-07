@@ -48,18 +48,25 @@ app.get('/product',(req, res) => {
 })
 
 app.get('/edit-product/:id', (req, res) => {
+  // :id ระบุ product id ที่เราต้องการแก้ไข เรียกว่า parameter
+  // ออบเจ็กต์ URL มีพร็อพเพอร์ตี้ searchParams ที่คืนค่าออบเจ็กต์ที่มีชนิดข้อมูลเป็น URLSearchParams ทำให้สามารถเรียกใช้เมธอด get ของ URLSearchParams เพื่อคืนค่าของ Query String ที่สนใจออกมาได้
+  // .find คือการค้นหาใน array products, p คือ arrow fn วิ่งเข้าไปหา obj id ที่เราต้องการ ถ้าเจอก็รันก้อนนั้นออกมา
+  
   const productId = parseInt(req.params.id);
   const product = products.find(p => p.id === productId);
   if (!product) {
+    // ! ถ้าเป็นจริงจะเปลี่ยนเป็นเท็จ ถ้าเป็นเท็จจะเปลี่ยนเป็นจริง=ถ้าไม่เจอ product => respon 404
     res.status(404).send('Product not found');
   } else {
     res.render('edit-product', { product });
   }
 })
+
 app.post('/edit-product', (req, res) => {
   const { id, name, description, price } = req.body;
   const productId = parseInt(id);
   const index = products.findIndex(p => p.id === productId);
+  // findIndex เพราะต้องการหาข้อมูลจาก array 
   if (index === -1) {
     res.status(404).send('Product not found');
   } else {
@@ -69,18 +76,22 @@ app.post('/edit-product', (req, res) => {
 })
 
 app.post('/add-product', (req, res) => {
+  // try console.log(req.body) to check result runnning, the result will be shown in terminal
   // const { id, name, description, price } = req.body;
+  // set ตัวแปรรอรับค่า new product
+  // ต้องเข้าไปที่ .body ด้วย เพราะ obj อยู่ตรงนั้น 
   const name = req.body.name;
   const description = req.body.description;
   const price = req.body.price;
   const newProduct = {
-    id: products.length + 1,
+    id: products.length + 1, //+1 จาก product length ที่เราตั้งค่า 100 ชิ้นไว้ตอนแรก
     name,
     description,
     price
   };
+  // products = [{}, {id:101,name:"product101"}]
   products.push(newProduct);
-  res.redirect('/product');
+  res.redirect('/product'); // redirect คือการเปลี่ยนหน้า product
 })
 
 app.post('/delete-product/:id', (req, res) => {
